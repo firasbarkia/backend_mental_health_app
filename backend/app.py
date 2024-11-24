@@ -74,9 +74,4 @@ def chat_with_consultant():
 
 if __name__ == '__main__':
     app.run(debug=True)
-@app.route('/')
-def index():
-    # Create sample consultants when the app first gets a request
-    if Consultant.query.count() == 0:
-        create_sample_consultants()
-    return render_template('index.html')
+
