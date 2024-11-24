@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <!-- Main Container -->
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
+
+        <!-- Psychological Assessment Form -->
+        <h1 class="text-2xl font-bold mb-6">Psychological Assessment</h1>
+        <form id="assessment-form">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2" for="age">Age</label>
+                <input class="w-full px-3 py-2 border border-gray-300 rounded-md" type="text" id="age" name="age" placeholder="Your age" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2" for="mood">Current Mood</label>
+                <input class="w-full px-3 py-2 border border-gray-300 rounded-md" type="text" id="mood" name="mood" placeholder="Happy" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 font-medium mb-2" for="concerns">Main Concerns</label>
+                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md" id="concerns" name="concerns" rows="4" placeholder="Describe your main concerns..." required></textarea>
+            </div>
+            <button type="submit" class="w-full bg-gray-800 text-white py-2 px-4 rounded-md hover:bg-gray-700">Submit Assessment</button>
+        </form>
+
+        <!-- Hume AI Analysis Section -->
+        <div class="mt-10">
+            <h1 class="text-2xl font-bold mb-6">Hume AI Analysis</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                    <h2 class="text-lg font-semibold mb-4">Emotion Analysis</h2>
+                    <div class="bg-gray-300 h-32 flex items-center justify-center rounded-lg">
+                        <span class="text-gray-500">Emotion Chart</span>
+                    </div>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                    <h2 class="text-lg font-semibold mb-4">Sentiment Analysis</h2>
+                    <div class="bg-gray-300 h-32 flex items-center justify-center rounded-lg">
+                        <span class="text-gray-500">Sentiment Graph</span>
+                    </div>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                    <h2 class="text-lg font-semibold mb-4">Personality Insights</h2>
+                    <div class="bg-gray-300 h-32 flex items-center justify-center rounded-lg">
+                        <span class="text-gray-500">Personality Radar Chart</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold mb-4">AI Recommendations</h2>
+                <ul class="list-disc list-inside">
+                    <li>Practice deep breathing exercises to reduce anxiety</li>
+                    <li>Consider journaling your thoughts and emotions</li>
+                    <li>Engage in regular physical activity to boost mood</li>
+                    <li>Explore mindfulness meditation techniques</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- AI Chat Interface -->
+        <div class="mt-10">
+            <h1 class="text-2xl font-bold mb-6">Chat with AI Assistant</h1>
+            <div class="bg-white w-full max-w-lg mx-auto rounded-lg shadow-lg p-4">
+                <div id="chat-box" class="space-y-4">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <div class="flex items-center border-t pt-4">
+                    <input id="chat-input" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message..." type="text" />
+                    <button id="send-chat" class="ml-2 p-2 bg-blue-500 text-white rounded-lg">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS for handling form submission and chat -->
+    <script>
+        // Form submission for assessment
+        document.getElementById('assessment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                responses: {
+                    age: document.getElementById('age').value,
+                    mood: document.getElementById('mood').value,
+                    concerns: document.getElementById('concerns').value,
+                }
+            };
+
+            fetch('/api/questionnaire', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Assessment submitted successfully!");
+            })
+            .catch(error => {
+                console.error("Error submitting assessment:", error);
+            });
+        });
+
+        // Chat functionality
+        document.getElementById('send-chat').addEventListener('click', function() {
+            const message = document.getElementById('chat-input').value;
+            const consultantId = "dummy-consultant-id"; // Ideally, you would fetch this dynamically
+
+            const chatMessage = {
+                message: message,
+                consultant_id: consultantId
+            };
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(chatMessage)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML += `<div class="flex items-start mb-4">
+                                        <div class="bg-blue-100 p-3 rounded-lg">
+                                            <p>${message}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start justify-end mb-4">
+                                        <div class="bg-gray-200 p-3 rounded-lg">
+                                            <p>${data.response}</p>
+                                        </div>
+                                    </div>`;
+                document.getElementById('chat-input').value = ''; // Clear input field
+            })
+            .catch(error => {
+                console.error("Error sending chat message:", error);
+            });
+        });
+    </script>
+
+</body>
+</html>
